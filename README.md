@@ -118,7 +118,7 @@ curl -X POST http://localhost:3001/api/feedback \
   -H "Content-Type: application/json" \
   -d '{"user_id": "user_196", "video_id": "movie_50", "signal": "up"}'
 ```
-
+![Demo](./assets/demo.png)
 ---
 
 ## Evaluation
