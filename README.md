@@ -167,6 +167,9 @@ The interaction matrix is sparse (`scipy.csr_matrix`, 943 users × 1,682 items).
 
 ---
 
+## Demo ![Demo](./assets/demo.jpg)
+
+---
 ## Project Structure
 
 ```
