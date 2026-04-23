@@ -120,7 +120,6 @@ curl -X POST http://localhost:3001/api/feedback \
 ```
 
 ---
-![Demo](./assets/demo.jpg)
 ## Evaluation
 
 Run offline metrics against a held-out test split:
