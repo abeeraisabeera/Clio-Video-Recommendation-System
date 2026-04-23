@@ -118,9 +118,9 @@ curl -X POST http://localhost:3001/api/feedback \
   -H "Content-Type: application/json" \
   -d '{"user_id": "user_196", "video_id": "movie_50", "signal": "up"}'
 ```
-![Demo](./assets/demo.png)
----
 
+---
+![Demo](./assets/demo.png)
 ## Evaluation
 
 Run offline metrics against a held-out test split:
