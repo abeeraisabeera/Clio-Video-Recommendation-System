@@ -1,5 +1,7 @@
 # Clio — Video Recommendation Engine
 
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A full-stack recommendation system using **Alternating Least Squares (ALS)** collaborative filtering on the MovieLens 100K dataset. Built to demonstrate end-to-end ML system design: data pipeline → model training → REST API → interactive frontend with real-time feedback.
 
 ---
