@@ -1,0 +1,12 @@
+node_modules
+clio-frontend/node_modules
+clio-frontend/.next
+venv
+.git
+.env
+.env.*
+*.md
+!README.md
+assets
+__pycache__
+*.pyc
