@@ -1,0 +1,12 @@
+node_modules/
+.pnpm-store/
+venv/
+.env
+.env.local
+.env.*.local
+clio-frontend/.next/
+clio-frontend/out/
+static/
+*.pyc
+__pycache__/
+.DS_Store

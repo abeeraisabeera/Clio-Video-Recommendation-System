@@ -32,16 +32,9 @@ def parse_ratings(z: zipfile.ZipFile) -> pd.DataFrame:
         names=["user_id", "video_id", "rating", "timestamp"],
     )
 
-    # =========================================================
-    # FIX 1: STRONGER SIGNAL TRANSFORMATION (CRITICAL)
-    # =========================================================
-    # instead of weak normalization, we create real confidence
+    # Implicit confidence: suppress weak ratings, amplify strong ones
     df["weight"] = (df["rating"] - 2.5).clip(lower=0)
-
-    # amplify signal separation
-    df["weight"] = df["weight"].apply(lambda x: 1 if x == 0 else (3 if x == 1 else (6 if x == 2 else 10)))
-
-    # implicit learning expects repeated strength
+    df["weight"] = 1 + df["weight"] * 2.5
     df["weight"] = df["weight"].astype(float)
 
     df["user_id"] = "user_" + df["user_id"].astype(str)
@@ -87,9 +80,6 @@ def main():
         ratings = parse_ratings(z)
         movies = parse_movies(z)
 
-    # =========================================================
-    # FIX 2: REMOVE DUPLICATE DILUTION (IMPORTANT FOR ALS)
-    # =========================================================
     ratings = ratings.groupby(
         ["user_id", "video_id"],
         as_index=False
