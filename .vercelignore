@@ -1,0 +1,12 @@
+requirements-docker.txt
+app.py
+model.py
+prepare_data.py
+evaluate.py
+clio_interactions.csv
+movies.csv
+static/
+tests/
+venv/
+Dockerfile
+.dockerignore

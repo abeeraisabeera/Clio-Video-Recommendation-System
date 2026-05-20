@@ -7,4 +7,3 @@ pandas>=2.2
 numpy>=1.26
 threadpoolctl>=3.5
 gunicorn>=22.0
-pytest>=8.0
