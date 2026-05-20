@@ -9,118 +9,156 @@ pinned: false
 license: mit
 ---
 
-# Clio
-
-Personalized movie recommendations powered by **ALS collaborative filtering** on [MovieLens 100K](https://grouplens.org/datasets/movielens/100k/). Next.js UI, Flask API, real-time thumbs-up/down feedback.
+<h1 align="center">Clio</h1>
+<p align="center">Collaborative filtering recommendations on MovieLens 100K</p>
 
 <p align="center">
-  <a href="https://abzyvantae-clio-recommeder.hf.space">Live demo (HF)</a>
-  ·
-  <a href="https://github.com/abeeraisabeera/Clio-Video-Recommendation-System">GitHub</a>
+  <a href="https://abzyvantae-clio-recommeder.hf.space"><img src="https://img.shields.io/badge/Live-Hugging%20Face-yellow?style=for-the-badge&logo=huggingface" alt="Live on Hugging Face" /></a>
+  <a href="https://github.com/abeeraisabeera/Clio-Video-Recommendation-System"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub" /></a>
 </p>
 
 <p align="center">
-  <img src="./assets/demo.jpg" alt="Clio recommendation UI" width="720" />
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/Flask-3-000000?style=flat-square&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/implicit-ALS-FF6F00?style=flat-square" />
+  <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/pnpm-workspace-F69220?style=flat-square&logo=pnpm&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-HF%20Spaces-2496ED?style=flat-square&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
 </p>
 
-## Stack
+<p align="center">
+  <img src="assets/demo.png" alt="Clio recommendation interface" width="920" />
+</p>
 
-| Layer | Tech |
-|-------|------|
-| Frontend | Next.js 16, React 19, Tailwind 4 |
-| API | Flask, `implicit` ALS |
-| Data | MovieLens 100K → `clio_interactions.csv` |
-| Deploy | [Hugging Face Spaces](https://huggingface.co/spaces/abzyvantae/clio_recommeder) · Vercel |
+<p align="center">
+  Search by user ID · ranked movie cards · thumbs-up/down feedback · match scores
+</p>
+
+---
+
+## Overview
+
+Clio trains an **Alternating Least Squares** model on 100K real user–movie ratings, serves personalized lists through a Flask API, and ships a Next.js UI where feedback reranks results instantly—without a full retrain.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph client
+    UI[Next.js UI]
+  end
+  subgraph api
+    FL[Flask /api]
+    ALS[ALS Model]
+  end
+  subgraph data
+    CSV[(clio_interactions.csv)]
+  end
+  UI -->|recommendations · feedback| FL
+  FL --> ALS
+  ALS --> CSV
+```
+
+**Local:** Next.js `:3000` → Flask `:5000`  
+**Production:** [Vercel](https://vercel.com) frontend → [HF Space](https://huggingface.co/spaces/abzyvantae/clio_recommeder) API (or all-in-one on HF Docker)
+
+---
+
+## Tech stack
+
+**Machine learning** — Python, `implicit` ALS, scikit-learn, SciPy sparse matrices, pandas  
+**Backend** — Flask, gunicorn, CORS  
+**Frontend** — Next.js 16, React 19, Tailwind CSS 4, Axios, Lucide icons  
+**Tooling** — pnpm monorepo, pytest, Vitest, Docker  
+**Dataset** — [MovieLens 100K](https://grouplens.org/datasets/movielens/100k/)
+
+---
+
+## Model
+
+- **Algorithm:** ALS collaborative filtering (`recalculate_user=True` at inference)
+- **Matrix:** 943 users × 1,682 items (CSR)
+- **Hyperparameters:** 100 factors · 0.05 regularization · 50 iterations
+- **Signal:** `1 + 2.5 × max(rating − 2.5, 0)` per interaction
+- **Feedback:** +0.3 boost on 👍 · hide on 👎 (in-memory rerank)
+
+---
+
+## Offline evaluation
+
+80/20 per-user hold-out · 100 sampled users · `python evaluate.py`
 
 ```
-Browser (Next.js)  →  /api/*  →  Flask + ALS  →  MovieLens matrix
+Precision@5   0.328    Recall@5    0.121    NDCG@5    0.313
+Precision@10  0.272    Recall@10   0.192    NDCG@10   0.301
+Precision@20  0.208    Recall@20   0.278    NDCG@20   0.308
 ```
 
-## Features
+Run your own: `pnpm evaluate` or `python evaluate.py --users 500 --k 10`
 
-- ALS recommendations with title, genre, match score, and thumbnails
-- Thumbs up / down reranking without retraining
-- Offline metrics: Precision@k, Recall@k, NDCG@k
-- Docker Space bundles UI + API on one URL
+---
 
 ## Quick start
-
-**Prerequisites:** Python 3.12+, Node 22+, pnpm
 
 ```bash
 git clone https://github.com/abeeraisabeera/Clio-Video-Recommendation-System.git
 cd Clio-Video-Recommendation-System
 
-python prepare_data.py          # once — downloads MovieLens
+python prepare_data.py
 pip install -r requirements-docker.txt
 corepack enable && pnpm install
 
-pnpm dev                        # Flask :5000 + Next.js :3000
+pnpm dev          # Flask :5000 + Next.js :3000
+pnpm test         # pytest + vitest
 ```
 
-Copy `.env.example` → `clio-frontend/.env.local` if you need a custom API URL (default `http://localhost:5000`).
+`clio-frontend/.env.local` → `NEXT_PUBLIC_API_URL=http://localhost:5000` (or your HF Space URL on Vercel)
 
-```bash
-pnpm test                       # pytest + vitest
-pnpm evaluate                   # offline evaluation
-```
+---
 
 ## API
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/health` | Model status |
-| GET | `/api/recommendations/:userId?n=10` | Top-N recommendations |
-| POST | `/api/feedback` | `{ user_id, video_id, signal: "up"\|"down" }` |
-| GET | `/api/movies?limit=100` | Catalogue browse |
+```http
+GET  /api/health
+GET  /api/recommendations/user_196?n=10
+POST /api/feedback
+GET  /api/movies?limit=100
+```
 
 ```bash
 curl "https://abzyvantae-clio-recommeder.hf.space/api/recommendations/user_196?n=5"
 ```
 
-## Model
-
-| Setting | Value |
-|---------|-------|
-| Algorithm | ALS (`implicit`) |
-| Factors / reg / iterations | 100 / 0.05 / 50 |
-| Matrix | 943 users × 1,682 items |
-| Inference | `recalculate_user=True` |
-
-Shared training and inference live in `model.py` (used by `app.py`, `evaluate.py`, and tests).
+---
 
 ## Deploy
 
-### Hugging Face (API + UI)
+**Hugging Face** — Docker Space [abzyvantae/clio_recommeder](https://huggingface.co/spaces/abzyvantae/clio_recommeder) · port `7860` · UI + API same origin
 
-This repo is configured for [abzyvantae/clio_recommeder](https://huggingface.co/spaces/abzyvantae/clio_recommeder). Push updates or connect GitHub; the `Dockerfile` serves Flask on port **7860** with a prebuilt static UI.
+**Vercel** — Root directory `clio-frontend` · env `NEXT_PUBLIC_API_URL=https://abzyvantae-clio-recommeder.hf.space`
 
 ```bash
-pnpm build:hf
-Copy-Item -Recurse clio-frontend/out static   # PowerShell
-docker build -t clio . && docker run -p 7860:7860 clio
+pnpm build:hf && cp -r clio-frontend/out static   # before HF Docker push
 ```
 
-### Vercel (frontend only)
+---
 
-1. Import the GitHub repo
-2. **Root Directory:** `clio-frontend`
-3. **Env:** `NEXT_PUBLIC_API_URL` = `https://abzyvantae-clio-recommeder.hf.space`
-4. Redeploy
-
-## Project layout
+## Project structure
 
 ```
-├── app.py              Flask API
-├── model.py            ALS training & inference
-├── prepare_data.py     MovieLens → CSV
-├── evaluate.py         Offline metrics
-├── clio-frontend/      Next.js app
-├── tests/              pytest
-├── Dockerfile          HF Space
-└── requirements-docker.txt
+app.py · model.py · prepare_data.py · evaluate.py
+clio-frontend/     Next.js app
+tests/             pytest suite
+Dockerfile         Hugging Face Spaces
 ```
 
-## License
+---
 
-MIT · Dataset: [MovieLens 100K](https://grouplens.org/datasets/movielens/100k/) (GroupLens).
+<p align="center">
+  <sub>MovieLens 100K · Harper & Konstan, 2015 · MIT License</sub>
+</p>
