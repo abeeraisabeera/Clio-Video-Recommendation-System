@@ -1,13 +1,3 @@
----
-title: Clio Recommendations
-emoji: 🎬
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
----
 
 <h1 align="center">Clio</h1>
 <p align="center">Collaborative filtering recommendations on MovieLens 100K</p>
